@@ -8,7 +8,7 @@ const GAME_POSITION = {
 
 async function loadData() {
     try {
-        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits");
+        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits"); // Fix?
         const data = await res.json();
 
         console.log("Fetched data:", data); // Debug
