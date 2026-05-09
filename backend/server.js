@@ -5,16 +5,26 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
-const PORT = 3000;
+// Render requires dynamic port binding
+const PORT = process.env.PORT || 3000;
 
 // Universe IDs in your preferred order
 const UNIVERSE_IDS = [
     1160789089, // Flag Wars
     6508759464, // Grace
-    9474062886,  // FarChance UGC
-    4235402932,   // Survival Of The Fittest
-    1195308961    // Time Wasting Simulator
+    9474062886, // FarChance UGC
+    4235402932, // Survival Of The Fittest
+    1195308961  // Time Wasting Simulator
 ];
+
+// Debug route to confirm server is alive
+app.get("/api/debug", (req, res) => {
+    res.json({
+        message: "Server is alive",
+        port: PORT,
+        timestamp: new Date().toISOString()
+    });
+});
 
 app.get("/", (req, res) => {
     res.send("Backend is running");
@@ -26,7 +36,6 @@ app.get("/api/visits", async (req, res) => {
         const gameInfoUrl = `https://games.roblox.com/v1/games?universeIds=${UNIVERSE_IDS.join(",")}`;
         const gameInfo = await axios.get(gameInfoUrl);
 
-        // Debug: See what Roblox actually returned
         console.log("Fetched games from Roblox:", gameInfo.data.data.map(g => g.id));
 
         // Fetch thumbnails
@@ -39,7 +48,7 @@ app.get("/api/visits", async (req, res) => {
             thumbMap[t.targetId] = t.imageUrl;
         });
 
-        // Ensure all IDs appear even if Roblox skips one
+        // Combine data
         const combined = UNIVERSE_IDS.map(id => {
             const game = gameInfo.data.data.find(g => g.id === id) || {};
             return {
@@ -77,5 +86,5 @@ app.get("/api/visits", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Backend running at http://localhost:${PORT}`);
+    console.log(`Backend running on port ${PORT}`);
 });
