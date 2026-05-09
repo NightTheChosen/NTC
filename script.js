@@ -8,8 +8,10 @@ const GAME_POSITION = {
 
 async function loadData() {
     try {
-        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits")
+        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits");
         const data = await res.json();
+
+        console.log("Fetched data:", data); // Debug
 
         if (!data.games || data.games.length === 0) {
             document.getElementById("output").innerHTML = "No games found.";
