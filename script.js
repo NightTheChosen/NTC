@@ -9,9 +9,33 @@ const GAME_POSITION = {
     9849457491: "Founder"
 };
 
-console.log("script.js loaded");
-
 const API_URL = "https://ntc-fn7y.onrender.com/api/visits";
+let lastUpdated = null;
+let secondsUntilRefresh = 90;
+const REFRESH_INTERVAL = 90000;
+
+function updateCountdown() {
+    secondsUntilRefresh--;
+    if (secondsUntilRefresh < 0) {
+        secondsUntilRefresh = 90;
+    }
+    renderFooter();
+}
+
+function renderFooter() {
+    let footer = document.getElementById("footer");
+    if (!footer) {
+        footer = document.createElement("div");
+        footer.id = "footer";
+        document.body.appendChild(footer);
+    }
+    
+    const timeStr = lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—";
+    const mins = Math.floor(secondsUntilRefresh / 60);
+    const secs = secondsUntilRefresh % 60;
+    
+    footer.innerHTML = `<strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")}`;
+}
 let allGames = [];
 
 function formatNumber(value) {
@@ -41,6 +65,7 @@ function renderTotals(games) {
         <strong>Total Playing:</strong> ${formatNumber(totals.playing)} |
         <strong>Total Favorites:</strong> ${formatNumber(totals.favorites)}
     `;
+    renderFooter();
 }
 
 function renderGames(games) {
@@ -94,7 +119,6 @@ function buildGroupFilter(games) {
     });
 
     filter.value = currentSelection;
-    console.log("Dropdown populated with creators:", creators);
 
     if (!filter.onchange) {
         filter.onchange = () => {
@@ -106,19 +130,11 @@ function buildGroupFilter(games) {
 }
 
 async function fetchVisits() {
-    try {
-        console.log("Fetching from:", API_URL);
-        const res = await fetch(API_URL);
-        if (!res.ok) {
-            throw new Error(`${res.status} ${res.statusText}`);
-        }
-        const data = await res.json();
-        console.log("Fetch successful, games count:", data.games?.length);
-        return data;
-    } catch (err) {
-        console.error("Fetch error:", err);
-        throw err;
+    const res = await fetch(API_URL);
+    if (!res.ok) {
+        throw new Error(`${res.status} ${res.statusText}`);
     }
+    return await res.json();
 }
 
 async function loadData() {
@@ -130,7 +146,9 @@ async function loadData() {
             return;
         }
 
-        console.log("Loaded games:", data.games.length, data.games);
+        lastUpdated = new Date().toISOString();
+        secondsUntilRefresh = 90;
+        renderFooter();
         allGames = data.games.sort((a, b) => b.visits - a.visits);
         buildGroupFilter(allGames);
 
@@ -140,10 +158,9 @@ async function loadData() {
 
     } catch (err) {
         document.getElementById("output").innerHTML = "Failed to load data from API.";
-        console.error("Frontend error:", err);
     }
 }
 
-console.log("Calling loadData()");
 loadData();
-setInterval(loadData, 30000);
+setInterval(updateCountdown, 1000);
+setInterval(loadData, REFRESH_INTERVAL);
