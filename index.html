@@ -3,16 +3,56 @@
 <head>
     <title>My Contributions</title>
     <style>
+        :root {
+            --bg: #f0f2f3;
+            --text: #222;
+            --card-bg: #fff;
+            --card-border: #e0e0e0;
+            --accent: #0078d7;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        body.dark {
+            --bg: #050712;
+            --text: #e6e6e6;
+            --card-bg: #111722;
+            --card-border: #1f2633;
+            --accent: #4da3ff;
+            --shadow: rgba(0,0,0,0.6);
+        }
+
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #f0f2f3;
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 30px;
             position: relative;
             overflow: hidden;
         }
 
-        /* STAR FIELD BEHIND EVERYTHING */
+        /* DARK MODE TOGGLE */
+        #toggleDark {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 6px var(--shadow);
+            z-index: 10;
+        }
+
+        #toggleDark:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+
+        /* STAR FIELD */
         #stars {
             position: fixed;
             top: 0;
@@ -25,17 +65,21 @@
 
         .star {
             position: absolute;
-            width: 110px; /* star size */
+            width: 110px;
             height: 110px;
-            background-image: url(StarIcon.webp);
-            background-size: contain;
-            background-repeat: no-repeat;
+            mask: url(StarIcon.svg) center/contain no-repeat;
+            -webkit-mask: url(StarIcon.svg) center/contain no-repeat;
+
+            /* JS will set these */
+            background-color: white;
+            filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.7));
+
             opacity: 0.9;
             will-change: transform;
         }
 
         h1 {
-            color: #0078d7;
+            color: var(--accent);
             margin-bottom: 10px;
         }
 
@@ -46,13 +90,13 @@
         }
 
         #totals {
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px var(--shadow);
             padding: 15px 20px;
             margin-bottom: 25px;
             font-weight: 500;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--card-border);
         }
 
         #output {
@@ -65,25 +109,27 @@
         }
 
         .game {
-            background: #fff;
-            border: 1px solid #e0e0e0;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 12px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 8px var(--shadow);
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            height: 100%;
+            height: auto;
             min-height: 340px;
-            max-height: 340px;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+            /* KEEP ONLY HOVER TRANSITION */
+            transition: all 0.7s ease;
         }
 
         .game:hover {
             transform: perspective(1000px) rotateX(-5deg) translateY(-15px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 12px var(--shadow);
+            transition: all 0.3s ease;
         }
 
         .game img {
@@ -91,7 +137,7 @@
             height: 128px;
             border-radius: 10px;
             object-fit: cover;
-            border: 1px solid #ddd;
+            border: 1px solid var(--card-border);
         }
 
         .info {
@@ -102,7 +148,7 @@
         .info h2 {
             margin: 0 0 10px;
             font-size: 18px;
-            color: #222;
+            color: var(--text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -110,15 +156,11 @@
 
         .info p {
             margin: 4px 0;
-            color: #333;
-        }
-
-        strong {
-            color: #0078d7;
+            color: var(--text);
         }
 
         a {
-            color: #0078d7;
+            color: var(--accent);
             text-decoration: none;
             font-weight: 600;
         }
@@ -131,7 +173,8 @@
 
 <body>
 
-    <!-- ⭐ STAR GRID BEHIND EVERYTHING -->
+    <button id="toggleDark">Dark Mode</button>
+
     <div id="stars"></div>
 
     <div class="container">
@@ -142,91 +185,114 @@
 
     <script src="script.js"></script>
 
-    <!-- ⭐ AUTO-SCALING STAR GRID + INERTIA SCRIPT -->
-        <script>
-        const stars = document.getElementById("stars");
+    <script>
+    const stars = document.getElementById("stars");
+    const toggleDark = document.getElementById("toggleDark");
 
-        const STAR_SIZE = 110;        // star width/height in px
-        const MIN_SPACING = 40;       // extra spacing between stars
-        const idleStrength = 3;       // idle wiggle
-        const mouseStrength = 55;     // mouse movement intensity
-        const followSpeed = 0.2;      // inertia
+    const STAR_SIZE = 110;
+    const MIN_SPACING = 40;
+    const idleStrength = 3;
+    const mouseStrength = 55;
+    const followSpeed = 0.2;
 
-        let targetX = 0.5;
-        let targetY = 0.5;
-        let currentX = 0.5;
-        let currentY = 0.5;
+    let targetX = 0.5;
+    let targetY = 0.5;
+    let currentX = 0.5;
+    let currentY = 0.5;
 
-        let starElements = [];
+    let starElements = [];
 
-        function createStars() {
-            stars.innerHTML = "";
-            starElements = [];
+    /* DARK MODE TOGGLE */
+    toggleDark.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
 
-            const screenW = window.innerWidth;
-            const screenH = window.innerHeight;
+        toggleDark.textContent =
+            document.body.classList.contains("dark")
+            ? "Light Mode"
+            : "Dark Mode";
 
-            // Calculate how many stars can fit without overlapping
-            const cellW = STAR_SIZE + MIN_SPACING;
-            const cellH = STAR_SIZE + MIN_SPACING;
+        updateStarColors();
+    });
 
-            const cols = Math.floor(screenW / cellW);
-            const rows = Math.floor(screenH / cellH);
+    /* CREATE STARS */
+    function createStars() {
+        stars.innerHTML = "";
+        starElements = [];
 
-            // Center the grid
-            const offsetX = (screenW - cols * cellW) / 2;
-            const offsetY = (screenH - rows * cellH) / 2;
+        const screenW = window.innerWidth;
+        const screenH = window.innerHeight;
 
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const star = document.createElement("div");
-                    star.classList.add("star");
+        const cellW = STAR_SIZE + MIN_SPACING;
+        const cellH = STAR_SIZE + MIN_SPACING;
 
-                    // Perfect spacing
-                    star.style.left = (offsetX + c * cellW) + "px";
-                    star.style.top = (offsetY + r * cellH) + "px";
+        let cols = Math.floor(screenW / cellW) + 2;
+        let rows = Math.floor(screenH / cellH) + 2;
 
-                    star.dataset.offset = Math.random() * 1000;
+        const offsetX = -cellW;
+        const offsetY = -cellH;
 
-                    stars.appendChild(star);
-                    starElements.push(star);
-                }
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const star = document.createElement("div");
+                star.classList.add("star");
+
+                star.style.left = (offsetX + c * cellW) + "px";
+                star.style.top = (offsetY + r * cellH) + "px";
+
+                starElements.push(star);
+                stars.appendChild(star);
             }
         }
 
-        window.addEventListener("resize", createStars);
+        updateStarColors();
+    }
 
-        document.addEventListener("mousemove", (e) => {
-            targetX = e.clientX / window.innerWidth;
-            targetY = e.clientY / window.innerHeight;
+    /* FAST STAR COLOR SWITCH */
+    function updateStarColors() {
+        const dark = document.body.classList.contains("dark");
+
+        starElements.forEach(star => {
+            if (dark) {
+                star.style.backgroundColor = "#9fc9ff";
+                star.style.filter = "drop-shadow(0px 0px 10px rgba(160,200,255,0.9))";
+            } else {
+                star.style.backgroundColor = "#ffffff";
+                star.style.filter = "drop-shadow(0px 0px 10px rgba(255,255,255,0.7))";
+            }
+        });
+    }
+
+    window.addEventListener("resize", createStars);
+
+    document.addEventListener("mousemove", (e) => {
+        targetX = e.clientX / window.innerWidth;
+        targetY = e.clientY / window.innerHeight;
+    });
+
+    /* ANIMATION LOOP */
+    function animateStars() {
+        const time = Date.now() / 800;
+
+        currentX += (targetX - currentX) * followSpeed;
+        currentY += (targetY - currentY) * followSpeed;
+
+        starElements.forEach(star => {
+            const idleX = Math.sin(time) * idleStrength;
+            const idleY = Math.cos(time) * idleStrength;
+
+            const parallaxX = (currentX - 0.5) * mouseStrength;
+            const parallaxY = (currentY - 0.5) * mouseStrength;
+
+            star.style.transform =
+                `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
         });
 
-        function animateStars() {
-            const time = Date.now() / 800;
+        requestAnimationFrame(animateStars);
+    }
 
-            // Smooth follow
-            currentX += (targetX - currentX) * followSpeed;
-            currentY += (targetY - currentY) * followSpeed;
-
-            starElements.forEach(star => {
-                const offset = parseFloat(star.dataset.offset);
-
-                const idleX = Math.sin(time + offset) * idleStrength;
-                const idleY = Math.cos(time + offset) * idleStrength;
-
-                const parallaxX = (currentX - 0.5) * mouseStrength;
-                const parallaxY = (currentY - 0.5) * mouseStrength;
-
-                star.style.transform =
-                    `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
-            });
-
-            requestAnimationFrame(animateStars);
-        }
-
-        createStars();
-        animateStars();
-        </script>
+    createStars();
+    animateStars();
+    </script>
 
 </body>
 </html>
