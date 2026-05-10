@@ -72,6 +72,7 @@ function buildGroupFilter(games) {
     const filter = document.getElementById("groupFilter");
     if (!filter) return;
 
+    const currentSelection = filter.value;
     const creators = [...new Set(games.map(game => game.creator?.name || "Unknown"))].sort((a, b) => a.localeCompare(b));
     filter.innerHTML = "";
 
@@ -87,11 +88,15 @@ function buildGroupFilter(games) {
         filter.appendChild(option);
     });
 
-    filter.onchange = () => {
-        const filtered = getFilteredGames();
-        renderTotals(filtered);
-        renderGames(filtered);
-    };
+    filter.value = currentSelection;
+
+    if (!filter.onchange) {
+        filter.onchange = () => {
+            const filtered = getFilteredGames();
+            renderTotals(filtered);
+            renderGames(filtered);
+        };
+    }
 }
 
 async function fetchVisits() {
