@@ -16,8 +16,9 @@ const UNIVERSE_IDS = [
     2722569653, // TVA
     6963638414, // Don't Blink
     9849457491, // FarChance's Easter Expedition
-    6421173906,  // Boomtato Unlit
-    9684251607  // Intergalactical Contact
+    6421173906, // Boomtato Unlit
+    9684251607, // Intergalactical Contact
+    1081987046, // Melee Smash Legacy
 ];
 
 app.get("/api/visits", async (req, res) => {
