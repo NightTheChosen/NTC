@@ -9,7 +9,7 @@ const GAME_POSITION = {
     9849457491: "Founder",
     6421173906: "Founder",
     9684251607: "Founder",
-    1081987046: "Developer"
+    1081987046: "Contributor"
 };
 
 const API_URL = "https://ntc-fn7y.onrender.com/api/visits";
