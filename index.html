@@ -25,7 +25,7 @@
 
         .star {
             position: absolute;
-            width: 110px; /* larger stars */
+            width: 110px; /* star size */
             height: 110px;
             background-image: url(StarIcon.webp);
             background-size: contain;
@@ -142,67 +142,91 @@
 
     <script src="script.js"></script>
 
-    <!-- ⭐ STAR ANIMATION SCRIPT -->
-    <script>
-    const stars = document.getElementById("stars");
-    const rows = 8;
-    const cols = 12;
+    <!-- ⭐ AUTO-SCALING STAR GRID + INERTIA SCRIPT -->
+        <script>
+        const stars = document.getElementById("stars");
 
-    const idleStrength = 5;   // subtle idle wiggle
-    const mouseStrength = 30;   // mouse movement intensity
-    const followSpeed = 0.15;   // inertia (lower = slower follow)
+        const STAR_SIZE = 110;        // star width/height in px
+        const MIN_SPACING = 40;       // extra spacing between stars
+        const idleStrength = 3;       // idle wiggle
+        const mouseStrength = 55;     // mouse movement intensity
+        const followSpeed = 0.2;      // inertia
 
-    let targetX = 0.5;
-    let targetY = 0.5;
-    let currentX = 0.5;
-    let currentY = 0.5;
+        let targetX = 0.5;
+        let targetY = 0.5;
+        let currentX = 0.5;
+        let currentY = 0.5;
 
-    // Create evenly spaced stars
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const star = document.createElement("div");
-            star.classList.add("star");
+        let starElements = [];
 
-            star.style.left = (c * (100 / cols)) + "vw";
-            star.style.top = (r * (100 / rows)) + "vh";
+        function createStars() {
+            stars.innerHTML = "";
+            starElements = [];
 
-            star.dataset.offset = Math.random() * 1000;
-            stars.appendChild(star);
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+
+            // Calculate how many stars can fit without overlapping
+            const cellW = STAR_SIZE + MIN_SPACING;
+            const cellH = STAR_SIZE + MIN_SPACING;
+
+            const cols = Math.floor(screenW / cellW);
+            const rows = Math.floor(screenH / cellH);
+
+            // Center the grid
+            const offsetX = (screenW - cols * cellW) / 2;
+            const offsetY = (screenH - rows * cellH) / 2;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const star = document.createElement("div");
+                    star.classList.add("star");
+
+                    // Perfect spacing
+                    star.style.left = (offsetX + c * cellW) + "px";
+                    star.style.top = (offsetY + r * cellH) + "px";
+
+                    star.dataset.offset = Math.random() * 1000;
+
+                    stars.appendChild(star);
+                    starElements.push(star);
+                }
+            }
         }
-    }
 
-    // Track mouse
-    document.addEventListener("mousemove", (e) => {
-        targetX = e.clientX / window.innerWidth;
-        targetY = e.clientY / window.innerHeight;
-    });
+        window.addEventListener("resize", createStars);
 
-    // Animate stars
-    function animateStars() {
-        const time = Date.now() / 800;
-
-        // Smooth follow (inertia)
-        currentX += (targetX - currentX) * followSpeed;
-        currentY += (targetY - currentY) * followSpeed;
-
-        document.querySelectorAll(".star").forEach(star => {
-            const offset = parseFloat(star.dataset.offset);
-
-            const idleX = Math.sin(time + offset) * idleStrength;
-            const idleY = Math.cos(time + offset) * idleStrength;
-
-            const parallaxX = (currentX - 0.5) * mouseStrength;
-            const parallaxY = (currentY - 0.5) * mouseStrength;
-
-            star.style.transform =
-                `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
+        document.addEventListener("mousemove", (e) => {
+            targetX = e.clientX / window.innerWidth;
+            targetY = e.clientY / window.innerHeight;
         });
 
-        requestAnimationFrame(animateStars);
-    }
+        function animateStars() {
+            const time = Date.now() / 800;
 
-    animateStars();
-    </script>
+            // Smooth follow
+            currentX += (targetX - currentX) * followSpeed;
+            currentY += (targetY - currentY) * followSpeed;
+
+            starElements.forEach(star => {
+                const offset = parseFloat(star.dataset.offset);
+
+                const idleX = Math.sin(time + offset) * idleStrength;
+                const idleY = Math.cos(time + offset) * idleStrength;
+
+                const parallaxX = (currentX - 0.5) * mouseStrength;
+                const parallaxY = (currentY - 0.5) * mouseStrength;
+
+                star.style.transform =
+                    `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
+            });
+
+            requestAnimationFrame(animateStars);
+        }
+
+        createStars();
+        animateStars();
+        </script>
 
 </body>
 </html>
