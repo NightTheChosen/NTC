@@ -9,7 +9,9 @@ const GAME_POSITION = {
     9849457491: "Founder"
 };
 
-const API_URL = "http://localhost:3000/api/visits";
+console.log("script.js loaded");
+
+const API_URL = "https://ntc-fn7y.onrender.com/api/visits";
 let allGames = [];
 
 function formatNumber(value) {
@@ -104,11 +106,19 @@ function buildGroupFilter(games) {
 }
 
 async function fetchVisits() {
-    const res = await fetch(API_URL);
-    if (!res.ok) {
-        throw new Error(`${res.status} ${res.statusText}`);
+    try {
+        console.log("Fetching from:", API_URL);
+        const res = await fetch(API_URL);
+        if (!res.ok) {
+            throw new Error(`${res.status} ${res.statusText}`);
+        }
+        const data = await res.json();
+        console.log("Fetch successful, games count:", data.games?.length);
+        return data;
+    } catch (err) {
+        console.error("Fetch error:", err);
+        throw err;
     }
-    return await res.json();
 }
 
 async function loadData() {
@@ -129,10 +139,11 @@ async function loadData() {
         renderGames(filtered);
 
     } catch (err) {
-        document.getElementById("output").innerHTML = "Failed to load data from local backend. Start the backend with `node backend/server.js` and reload the page.";
+        document.getElementById("output").innerHTML = "Failed to load data from API.";
         console.error("Frontend error:", err);
     }
 }
 
+console.log("Calling loadData()");
 loadData();
 setInterval(loadData, 30000);
