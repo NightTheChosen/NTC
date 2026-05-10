@@ -70,7 +70,10 @@ function renderGames(games) {
 
 function buildGroupFilter(games) {
     const filter = document.getElementById("groupFilter");
-    if (!filter) return;
+    if (!filter) {
+        console.error("groupFilter element not found in DOM");
+        return;
+    }
 
     const currentSelection = filter.value;
     const creators = [...new Set(games.map(game => game.creator?.name || "Unknown"))].sort((a, b) => a.localeCompare(b));
@@ -89,6 +92,7 @@ function buildGroupFilter(games) {
     });
 
     filter.value = currentSelection;
+    console.log("Dropdown populated with creators:", creators);
 
     if (!filter.onchange) {
         filter.onchange = () => {
@@ -116,6 +120,7 @@ async function loadData() {
             return;
         }
 
+        console.log("Loaded games:", data.games.length, data.games);
         allGames = data.games.sort((a, b) => b.visits - a.visits);
         buildGroupFilter(allGames);
 
