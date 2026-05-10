@@ -5,10 +5,8 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
-// Render requires dynamic port binding
 const PORT = process.env.PORT || 3000;
 
-// Universe IDs in your preferred order
 const UNIVERSE_IDS = [
     1160789089, // Flag Wars
     6508759464, // Grace
@@ -17,38 +15,19 @@ const UNIVERSE_IDS = [
     1195308961  // Time Wasting Simulator
 ];
 
-// Debug route to confirm server is alive
-app.get("/api/debug", (req, res) => {
-    res.json({
-        message: "Server is alive",
-        port: PORT,
-        timestamp: new Date().toISOString()
-    });
-});
-
-app.get("/", (req, res) => {
-    res.send("Backend is running");
-});
-
 app.get("/api/visits", async (req, res) => {
     try {
-        // Fetch game info
         const gameInfoUrl = `https://games.roblox.com/v1/games?universeIds=${UNIVERSE_IDS.join(",")}`;
         const gameInfo = await axios.get(gameInfoUrl);
 
-        console.log("Fetched games from Roblox:", gameInfo.data.data.map(g => g.id));
-
-        // Fetch thumbnails
-        const thumbUrl = `https://thumbnails.roblox.com/v1/games/icons?universeIds=${UNIVERSE_IDS.join(",")}&size=256x256&format=Png&isCircular=false`;
+        const thumbUrl = `https://thumbnails.roblox.com/v1/games/icons?universeIds=${UNIVERSE_IDS.join(",")}&size=256x256&format=Png&isCircular=false&retrying=true`;
         const thumbs = await axios.get(thumbUrl);
 
-        // Map thumbnails by universe ID
         const thumbMap = {};
         thumbs.data.data.forEach(t => {
             thumbMap[t.targetId] = t.imageUrl;
         });
 
-        // Combine data
         const combined = UNIVERSE_IDS.map(id => {
             const game = gameInfo.data.data.find(g => g.id === id) || {};
             return {
@@ -63,7 +42,6 @@ app.get("/api/visits", async (req, res) => {
             };
         });
 
-        // Totals
         const totals = combined.reduce(
             (acc, g) => ({
                 visits: acc.visits + g.visits,

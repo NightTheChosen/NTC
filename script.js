@@ -8,20 +8,16 @@ const GAME_POSITION = {
 
 async function loadData() {
     try {
-        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits"); // Fix?
+        const res = await fetch("https://ntc-fn7y.onrender.com/api/visits");
         const data = await res.json();
-
-        console.log("Fetched data:", data); // Debug
 
         if (!data.games || data.games.length === 0) {
             document.getElementById("output").innerHTML = "No games found.";
             return;
         }
 
-        // Sort games by visits (highest first)
         data.games.sort((a, b) => b.visits - a.visits);
 
-        // Update totals
         const totals = data.totals;
         document.getElementById("totals").innerHTML = `
             <strong>Total Visits:</strong> ${totals.visits.toLocaleString()} |
@@ -29,11 +25,10 @@ async function loadData() {
             <strong>Total Favorites:</strong> ${totals.favorites.toLocaleString()}
         `;
 
-        // Render sorted games
         document.getElementById("output").innerHTML =
             data.games.map(g => `
                 <div class="game">
-                    <img src="${g.thumbnail || ''}" alt="Thumbnail">
+                    <img src="${g.thumbnail || 'https://tr.rbxcdn.com/4e4f2e6e8c6e8e8e8e8e8e8e8e8e/150/150/Image/Png'}" alt="Thumbnail">
                     <div class="info">
                         <h2>
                             <a href="https://www.roblox.com/games/${g.rootPlaceId}" target="_blank">
