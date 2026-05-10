@@ -12,7 +12,10 @@ const UNIVERSE_IDS = [
     6508759464, // Grace
     9474062886, // FarChance UGC
     4235402932, // Survival Of The Fittest
-    1195308961  // Time Wasting Simulator
+    1195308961, // Time Wasting Simulator
+    2722569653, // TVA
+    6963638414, // Don't Blink
+    9849457491 // FarChance's Easter Expedition
 ];
 
 app.get("/api/visits", async (req, res) => {
