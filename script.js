@@ -3,7 +3,8 @@ const GAME_POSITION = {
     6508759464: "UGC Uploader",
     9474062886: "Founder",
     4235402932: "Animator",
-    1195308961: "Contributor"
+    1195308961: "Contributor",
+    6963638414: "Founder",
 };
 
 async function loadData() {

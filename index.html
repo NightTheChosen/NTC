@@ -5,9 +5,33 @@
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #f3f5f7;
+            background: #f0f2f3;
             margin: 0;
             padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* STAR FIELD BEHIND EVERYTHING */
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 110px; /* larger stars */
+            height: 110px;
+            background-image: url(StarIcon.webp);
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.9;
+            will-change: transform;
         }
 
         h1 {
@@ -58,7 +82,7 @@
         }
 
         .game:hover {
-            transform: translateY(-3px);
+            transform: perspective(1000px) rotateX(-5deg) translateY(-15px);
             box-shadow: 0 6px 12px rgba(0,0,0,0.12);
         }
 
@@ -106,6 +130,10 @@
 </head>
 
 <body>
+
+    <!-- ⭐ STAR GRID BEHIND EVERYTHING -->
+    <div id="stars"></div>
+
     <div class="container">
         <h1>My Contributions</h1>
         <div id="totals">Loading totals...</div>
@@ -113,5 +141,68 @@
     </div>
 
     <script src="script.js"></script>
+
+    <!-- ⭐ STAR ANIMATION SCRIPT -->
+    <script>
+    const stars = document.getElementById("stars");
+    const rows = 8;
+    const cols = 12;
+
+    const idleStrength = 5;   // subtle idle wiggle
+    const mouseStrength = 30;   // mouse movement intensity
+    const followSpeed = 0.15;   // inertia (lower = slower follow)
+
+    let targetX = 0.5;
+    let targetY = 0.5;
+    let currentX = 0.5;
+    let currentY = 0.5;
+
+    // Create evenly spaced stars
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const star = document.createElement("div");
+            star.classList.add("star");
+
+            star.style.left = (c * (100 / cols)) + "vw";
+            star.style.top = (r * (100 / rows)) + "vh";
+
+            star.dataset.offset = Math.random() * 1000;
+            stars.appendChild(star);
+        }
+    }
+
+    // Track mouse
+    document.addEventListener("mousemove", (e) => {
+        targetX = e.clientX / window.innerWidth;
+        targetY = e.clientY / window.innerHeight;
+    });
+
+    // Animate stars
+    function animateStars() {
+        const time = Date.now() / 800;
+
+        // Smooth follow (inertia)
+        currentX += (targetX - currentX) * followSpeed;
+        currentY += (targetY - currentY) * followSpeed;
+
+        document.querySelectorAll(".star").forEach(star => {
+            const offset = parseFloat(star.dataset.offset);
+
+            const idleX = Math.sin(time + offset) * idleStrength;
+            const idleY = Math.cos(time + offset) * idleStrength;
+
+            const parallaxX = (currentX - 0.5) * mouseStrength;
+            const parallaxY = (currentY - 0.5) * mouseStrength;
+
+            star.style.transform =
+                `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
+        });
+
+        requestAnimationFrame(animateStars);
+    }
+
+    animateStars();
+    </script>
+
 </body>
 </html>
