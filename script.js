@@ -153,7 +153,7 @@ function renderFooter() {
     const mins = Math.floor(secondsUntilRefresh / 60);
     const secs = secondsUntilRefresh % 60;
 
-    footer.innerHTML = `<strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")} | <strong>Version:</strong> ${VERSION}`;
+    footer.innerHTML = `<strong>Version:</strong> ${VERSION} | <strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
 function formatNumber(value) {
