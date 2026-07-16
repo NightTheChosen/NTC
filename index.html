@@ -65,15 +65,23 @@
             inset: 0;
             pointer-events: none;
             z-index: 0;
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(255,255,255,0.9) 1px, transparent 0),
-                radial-gradient(circle at 40% 15%, rgba(255,255,255,0.8) 1px, transparent 0),
-                radial-gradient(circle at 70% 35%, rgba(255,255,255,0.85) 1px, transparent 0),
-                radial-gradient(circle at 20% 70%, rgba(255,255,255,0.7) 1px, transparent 0),
-                radial-gradient(circle at 85% 80%, rgba(255,255,255,0.75) 1px, transparent 0);
-            background-size: 160px 160px, 200px 200px, 140px 140px, 180px 180px, 220px 220px;
-            opacity: 0.45;
-            will-change: transform;
+            overflow: hidden;
+            background: transparent;
+            transform: translateZ(0);
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(35, 57, 118, 0.95);
+            box-shadow: 0 0 8px rgba(57, 101, 170, 0.5);
+            will-change: transform, opacity;
+            pointer-events: none;
+        }
+
+        body.dark .star {
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 8px rgba(255,255,255,0.65);
         }
 
         .container {

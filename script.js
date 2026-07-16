@@ -20,7 +20,21 @@ const REFRESH_INTERVAL = 90000;
 let allGames = [];
 let isDarkMode = false;
 
+const STAR_COUNT = 70;
+const STAR_MIN_SIZE = 1.8;
+const STAR_MAX_SIZE = 4.2;
+const STAR_MOUSE_STRENGTH = 35;
+const STAR_FOLLOW_SPEED = 0.08;
+
+let starElements = [];
+let targetX = 0.5;
+let targetY = 0.5;
+let currentX = 0.5;
+let currentY = 0.5;
+let starContainer = null;
+
 function init() {
+    applyThemeByLocalTime();
     setupStars();
     setupDarkMode();
     loadData();
@@ -28,25 +42,78 @@ function init() {
     setInterval(loadData, REFRESH_INTERVAL);
 }
 
+function applyThemeByLocalTime() {
+    const hour = new Date().getHours();
+    const shouldDark = hour >= 19 || hour < 6;
+    document.body.classList.toggle("dark", shouldDark);
+}
+
 function setupStars() {
     const stars = document.getElementById("stars");
     if (!stars) return;
 
-    let pointerX = 0.5;
-    let pointerY = 0.5;
-    const maxOffset = 30;
-
+    starContainer = stars;
+    buildStars();
+    window.addEventListener("resize", buildStars);
     document.addEventListener("mousemove", (event) => {
-        pointerX = event.clientX / window.innerWidth;
-        pointerY = event.clientY / window.innerHeight;
+        targetX = event.clientX / window.innerWidth;
+        targetY = event.clientY / window.innerHeight;
     });
+    requestAnimationFrame(animateStars);
+}
 
-    function animateStars() {
-        const offsetX = (pointerX - 0.5) * maxOffset;
-        const offsetY = (pointerY - 0.5) * maxOffset;
-        stars.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        requestAnimationFrame(animateStars);
+function buildStars() {
+    if (!starContainer) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    starContainer.innerHTML = "";
+    starElements = [];
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+        const size = STAR_MIN_SIZE + Math.random() * (STAR_MAX_SIZE - STAR_MIN_SIZE);
+        const star = document.createElement("div");
+        star.className = "star";
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.opacity = `${0.35 + Math.random() * 0.55}`;
+
+        const baseX = Math.random() * (width - size);
+        const baseY = Math.random() * (height - size);
+        star.style.left = `${baseX}px`;
+        star.style.top = `${baseY}px`;
+
+        starContainer.appendChild(star);
+
+        starElements.push({
+            el: star,
+            baseX,
+            baseY,
+            size,
+            speed: 0.8 + Math.random() * 0.9,
+            phase: Math.random() * Math.PI * 2,
+            driftX: 4 + Math.random() * 10,
+            driftY: 4 + Math.random() * 10,
+            parallaxScale: 0.4 + Math.random() * 0.9
+        });
     }
+}
+
+function animateStars(timestamp) {
+    currentX += (targetX - currentX) * STAR_FOLLOW_SPEED;
+    currentY += (targetY - currentY) * STAR_FOLLOW_SPEED;
+
+    const parallaxX = (currentX - 0.5) * STAR_MOUSE_STRENGTH;
+    const parallaxY = (currentY - 0.5) * STAR_MOUSE_STRENGTH;
+    const time = (timestamp || 0) / 1000;
+
+    starElements.forEach((star) => {
+        const idleX = Math.sin(time * star.speed + star.phase) * star.driftX;
+        const idleY = Math.cos(time * star.speed + star.phase * 1.2) * star.driftY;
+        const x = idleX + parallaxX * star.parallaxScale;
+        const y = idleY + parallaxY * star.parallaxScale;
+        star.el.style.transform = `translate(${x}px, ${y}px)`;
+    });
 
     requestAnimationFrame(animateStars);
 }
