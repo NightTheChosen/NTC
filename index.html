@@ -70,21 +70,6 @@
             z-index: -1;
         }
 
-        .star {
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            mask: url(StarIcon.svg) center/contain no-repeat;
-            -webkit-mask: url(StarIcon.svg) center/contain no-repeat;
-
-            /* JS will set these */
-            background-color: white;
-            filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.7));
-
-            opacity: 0.9;
-            will-change: transform;
-        }
-
         h1 {
             color: var(--accent);
             margin-bottom: 10px;
@@ -126,7 +111,7 @@
 
         #output {
             display: grid;
-            grid-template-columns: repeat(6, minmax(180px, 1fr));
+            grid-template-columns: repeat(5, minmax(180px, 1fr));
             grid-auto-rows: auto;
             gap: 10px;
             justify-content: center;
@@ -248,116 +233,7 @@
             </div>
             <div id="output">Loading games...</div>
         </div>
-    <script src="script.js"></script>
-
-    <script>
-    const stars = document.getElementById("stars");
-    const toggleDark = document.getElementById("toggleDark");
-
-    const STAR_SIZE = 110;
-    const MIN_SPACING = 40;
-    const idleStrength = 5;
-    const mouseStrength = 45;
-    const followSpeed = 0.05;
-
-    let targetX = 0.5;
-    let targetY = 0.5;
-    let currentX = 0.5;
-    let currentY = 0.5;
-
-    let starElements = [];
-
-    /* DARK MODE TOGGLE */
-    toggleDark.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-
-        toggleDark.textContent =
-            document.body.classList.contains("dark")
-            ? "Light Mode"
-            : "Dark Mode";
-
-        updateStarColors();
-    });
-
-    /* CREATE STARS */
-    function createStars() {
-        stars.innerHTML = "";
-        starElements = [];
-
-        const screenW = window.innerWidth;
-        const screenH = window.innerHeight;
-
-        const cellW = STAR_SIZE + MIN_SPACING;
-        const cellH = STAR_SIZE + MIN_SPACING;
-
-        let cols = Math.floor(screenW / cellW) + 2;
-        let rows = Math.floor(screenH / cellH) + 2;
-
-        const offsetX = -cellW;
-        const offsetY = -cellH;
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const star = document.createElement("div");
-                star.classList.add("star");
-
-                star.style.left = (offsetX + c * cellW) + "px";
-                star.style.top = (offsetY + r * cellH) + "px";
-
-                starElements.push(star);
-                stars.appendChild(star);
-            }
-        }
-
-        updateStarColors();
-    }
-
-    /* FAST STAR COLOR SWITCH */
-    function updateStarColors() {
-        const dark = document.body.classList.contains("dark");
-
-        starElements.forEach(star => {
-            if (dark) {
-                star.style.backgroundColor = "#9fc9ff";
-                star.style.filter = "drop-shadow(0px 0px 10px rgba(160,200,255,0.9))";
-            } else {
-                star.style.backgroundColor = "#ffffff";
-                star.style.filter = "drop-shadow(0px 0px 10px rgba(255,255,255,0.7))";
-            }
-        });
-    }
-
-    window.addEventListener("resize", createStars);
-
-    document.addEventListener("mousemove", (e) => {
-        targetX = e.clientX / window.innerWidth;
-        targetY = e.clientY / window.innerHeight;
-    });
-
-    /* ANIMATION LOOP */
-    function animateStars() {
-        const time = Date.now() / 800;
-
-        currentX += (targetX - currentX) * followSpeed;
-        currentY += (targetY - currentY) * followSpeed;
-
-        starElements.forEach(star => {
-            const idleX = Math.sin(time) * idleStrength;
-            const idleY = Math.cos(time) * idleStrength;
-
-            const parallaxX = (currentX - 0.5) * mouseStrength;
-            const parallaxY = (currentY - 0.5) * mouseStrength;
-
-            star.style.transform =
-                `translate(${idleX + parallaxX}px, ${idleY + parallaxY}px)`;
-        });
-
-        requestAnimationFrame(animateStars);
-    }
-
-    createStars();
-    animateStars();
-    </script>
+    <script src="script.js" defer></script>
 
 </body>
 </html>

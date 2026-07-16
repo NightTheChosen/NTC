@@ -1,4 +1,4 @@
-const GAME_POSITION = {
+﻿const GAME_POSITION = {
     1160789089: "Animator",
     6508759464: "UGC Uploader",
     9474062886: "Founder",
@@ -17,6 +17,114 @@ let lastUpdated = null;
 let secondsUntilRefresh = 90;
 const REFRESH_INTERVAL = 90000;
 
+const STAR_COUNT = 120;
+const STAR_MAX_SIZE = 2.5;
+const STAR_MIN_SIZE = 1;
+const STAR_COLOR_LIGHT = "rgba(255,255,255,0.9)";
+const STAR_COLOR_DARK = "rgba(160,200,255,0.9)";
+const PARALLAX_STRENGTH = 30;
+
+let allGames = [];
+let starCanvas;
+let starCtx;
+let starData = [];
+let canvasWidth = 0;
+let canvasHeight = 0;
+let pointerX = 0.5;
+let pointerY = 0.5;
+let isDarkMode = false;
+
+function init() {
+    setupStars();
+    setupDarkMode();
+    loadData();
+    setInterval(updateCountdown, 1000);
+    setInterval(loadData, REFRESH_INTERVAL);
+}
+
+function setupStars() {
+    const stars = document.getElementById("stars");
+    starCanvas = document.createElement("canvas");
+    starCanvas.style.width = "100%";
+    starCanvas.style.height = "100%";
+    starCanvas.style.display = "block";
+    starCanvas.style.pointerEvents = "none";
+    stars.appendChild(starCanvas);
+
+    starCtx = starCanvas.getContext("2d");
+    resizeStars();
+    window.addEventListener("resize", resizeStars);
+    document.addEventListener("mousemove", (event) => {
+        pointerX = event.clientX / window.innerWidth;
+        pointerY = event.clientY / window.innerHeight;
+    });
+    requestAnimationFrame(drawStars);
+}
+
+function resizeStars() {
+    const ratio = window.devicePixelRatio || 1;
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    starCanvas.width = canvasWidth * ratio;
+    starCanvas.height = canvasHeight * ratio;
+    starCanvas.style.width = `${canvasWidth}px`;
+    starCanvas.style.height = `${canvasHeight}px`;
+    starCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    if (starData.length === 0) {
+        starData = Array.from({ length: STAR_COUNT }, () => createStar());
+    }
+}
+
+function createStar() {
+    return {
+        x: Math.random(),
+        y: Math.random(),
+        size: STAR_MIN_SIZE + Math.random() * (STAR_MAX_SIZE - STAR_MIN_SIZE),
+        alpha: 0.4 + Math.random() * 0.6,
+        speed: 0.2 + Math.random() * 0.4
+    };
+}
+
+function drawStars(timestamp) {
+    if (!starCtx) return;
+
+    starCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    starCtx.fillStyle = isDarkMode ? STAR_COLOR_DARK : STAR_COLOR_LIGHT;
+
+    const offsetX = (pointerX - 0.5) * PARALLAX_STRENGTH;
+    const offsetY = (pointerY - 0.5) * PARALLAX_STRENGTH;
+
+    starData.forEach((star, index) => {
+        const phase = Math.sin((timestamp / 1000) * star.speed + index) * 0.5;
+        const x = (star.x + phase * 0.01) * canvasWidth + offsetX * star.size;
+        const y = (star.y + phase * 0.01) * canvasHeight + offsetY * star.size;
+        const radius = star.size;
+
+        starCtx.globalAlpha = star.alpha;
+        starCtx.beginPath();
+        starCtx.arc(x, y, radius, 0, Math.PI * 2);
+        starCtx.fill();
+    });
+
+    starCtx.globalAlpha = 1;
+    requestAnimationFrame(drawStars);
+}
+
+function setupDarkMode() {
+    const toggleDark = document.getElementById("toggleDark");
+    if (!toggleDark) return;
+
+    isDarkMode = document.body.classList.contains("dark");
+    toggleDark.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
+
+    toggleDark.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        isDarkMode = document.body.classList.contains("dark");
+        toggleDark.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
+    });
+}
+
 function updateCountdown() {
     secondsUntilRefresh--;
     if (secondsUntilRefresh < 0) {
@@ -32,14 +140,13 @@ function renderFooter() {
         footer.id = "footer";
         document.body.appendChild(footer);
     }
-    
+
     const timeStr = lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : "—";
     const mins = Math.floor(secondsUntilRefresh / 60);
     const secs = secondsUntilRefresh % 60;
-    
+
     footer.innerHTML = `<strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")}`;
 }
-let allGames = [];
 
 function formatNumber(value) {
     return value.toLocaleString();
@@ -123,13 +230,11 @@ function buildGroupFilter(games) {
 
     filter.value = currentSelection;
 
-    if (!filter.onchange) {
-        filter.onchange = () => {
-            const filtered = getFilteredGames();
-            renderTotals(filtered);
-            renderGames(filtered);
-        };
-    }
+    filter.onchange = () => {
+        const filtered = getFilteredGames();
+        renderTotals(filtered);
+        renderGames(filtered);
+    };
 }
 
 async function fetchVisits() {
@@ -164,6 +269,4 @@ async function loadData() {
     }
 }
 
-loadData();
-setInterval(updateCountdown, 1000);
-setInterval(loadData, REFRESH_INTERVAL);
+init();
