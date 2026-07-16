@@ -13,7 +13,7 @@
 };
 
 const API_URL = "https://ntc-fn7y.onrender.com/api/visits";
-const VERSION = "1.0";
+const VERSION = "1.0.1";
 let lastUpdated = null;
 let secondsUntilRefresh = 90;
 const REFRESH_INTERVAL = 90000;
