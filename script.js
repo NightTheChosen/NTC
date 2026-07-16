@@ -21,10 +21,34 @@ let allGames = [];
 let isDarkMode = false;
 
 function init() {
+    setupStars();
     setupDarkMode();
     loadData();
     setInterval(updateCountdown, 1000);
     setInterval(loadData, REFRESH_INTERVAL);
+}
+
+function setupStars() {
+    const stars = document.getElementById("stars");
+    if (!stars) return;
+
+    let pointerX = 0.5;
+    let pointerY = 0.5;
+    const maxOffset = 30;
+
+    document.addEventListener("mousemove", (event) => {
+        pointerX = event.clientX / window.innerWidth;
+        pointerY = event.clientY / window.innerHeight;
+    });
+
+    function animateStars() {
+        const offsetX = (pointerX - 0.5) * maxOffset;
+        const offsetY = (pointerY - 0.5) * maxOffset;
+        stars.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        requestAnimationFrame(animateStars);
+    }
+
+    requestAnimationFrame(animateStars);
 }
 
 function setupDarkMode() {
