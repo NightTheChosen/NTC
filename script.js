@@ -111,7 +111,8 @@ function openWorkModal(gameId, rootPlaceId, gameName) {
 
     workModalTitle.textContent = `${gameName} Work Preview`;
     workFrame.hidden = true;
-    workModalPlaceholder.hidden = true;
+    workModalPlaceholder.hidden = false;
+    workModalPlaceholder.innerHTML = "Loading preview...";
     workModal.classList.add("open");
 
     const candidates = [
