@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, "..")));
 const PORT = process.env.PORT || 3000;
 
 const UNIVERSE_IDS = [
-    3214114884, // Flag Wars (corrected)
+    1160789089, // Flag Wars
     6508759464, // Grace
     9474062886, // FarChance UGC
     4235402932, // Survival Of The Fittest
@@ -90,7 +90,7 @@ app.get("/api/visits", async (req, res) => {
         });
 
         const combined = UNIVERSE_IDS.map(id => {
-            const game = gameInfo.data.data.find(g => g.id === id) || {};
+            const game = gameInfo.data.data.find(g => g.id === id || g.rootPlaceId === id) || {};
             return {
                 id,
                 name: game.name || "Unknown Game",
