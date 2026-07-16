@@ -17,11 +17,11 @@ let lastUpdated = null;
 let secondsUntilRefresh = 90;
 const REFRESH_INTERVAL = 90000;
 
-const STAR_COUNT = 120;
-const STAR_MAX_SIZE = 2.5;
-const STAR_MIN_SIZE = 1;
-const STAR_COLOR_LIGHT = "rgba(255,255,255,0.9)";
-const STAR_COLOR_DARK = "rgba(160,200,255,0.9)";
+const STAR_COUNT = 200;
+const STAR_MAX_SIZE = 3.5;
+const STAR_MIN_SIZE = 1.2;
+const STAR_COLOR_LIGHT = "rgba(255,255,255,0.95)";
+const STAR_COLOR_DARK = "rgba(180,220,255,0.95)";
 const PARALLAX_STRENGTH = 30;
 
 let allGames = [];
