@@ -179,10 +179,55 @@
             transition: all 0.7s ease;
         }
 
+        .game {
+            cursor: pointer;
+        }
+
         .game:hover {
             transform: perspective(1000px) rotateX(-5deg) translateY(-15px);
             box-shadow: 0 6px 12px var(--shadow);
             transition: all 0.3s ease;
+        }
+
+        .info {
+            text-align: left;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .game-id-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .game-id-label {
+            font-size: 13px;
+            color: var(--text);
+            opacity: 0.8;
+            word-break: break-all;
+        }
+
+        .copyIdButton {
+            padding: 4px 9px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: var(--card-border);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            transition: filter 0.16s ease, transform 0.16s ease;
+        }
+
+        .copyIdButton:hover {
+            filter: brightness(0.92);
+            transform: translateY(-1px);
         }
 
         .game img {
@@ -191,6 +236,77 @@
             border-radius: 10px;
             object-fit: cover;
             border: 1px solid var(--card-border);
+        }
+
+        #workModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 20;
+        }
+
+        #workModal.open {
+            display: flex;
+        }
+
+        #workModalContent {
+            width: min(1200px, 100%);
+            height: min(820px, 100%);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+        }
+
+        #workModalHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border);
+            background: var(--card-bg);
+        }
+
+        #workModalHeader h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        #closeWorkModal {
+            border: none;
+            background: var(--accent);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        #workFrame {
+            width: 100%;
+            height: calc(100% - 64px);
+            border: none;
+            background: var(--card-bg);
+        }
+
+        #workModalPlaceholder {
+            width: 100%;
+            height: calc(100% - 64px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.5;
         }
 
         .info {
@@ -270,6 +386,21 @@
             <div id="output">Loading games...</div>
         </div>
     <script src="script.js" defer></script>
+
+    <div id="workModal" aria-hidden="true">
+        <div id="workModalContent">
+            <div id="workModalHeader">
+                <h3 id="workModalTitle">Work Preview</h3>
+                <button id="closeWorkModal">Close</button>
+            </div>
+            <iframe id="workFrame" title="Work preview"></iframe>
+            <div id="workModalPlaceholder" hidden>
+                No work preview is available for this game.
+                <br><br>
+                Add an <code>index.html</code> file to <code>./work/&lt;gameId&gt;/</code> and the preview will load here.
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

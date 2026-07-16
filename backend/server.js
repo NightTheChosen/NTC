@@ -1,14 +1,17 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
+app.use(express.static(path.join(__dirname, "..")));
 
 const PORT = process.env.PORT || 3000;
 
 const UNIVERSE_IDS = [
-    1160789089, // Flag Wars
+    3214114884, // Flag Wars (corrected)
     6508759464, // Grace
     9474062886, // FarChance UGC
     4235402932, // Survival Of The Fittest
@@ -20,6 +23,58 @@ const UNIVERSE_IDS = [
     9684251607, // Intergalactical Contact
     1081987046, // Melee Smash Legacy
 ];
+
+app.get("/api/work", async (req, res) => {
+    try {
+        const workDir = path.join(__dirname, "..", "work");
+        if (!fs.existsSync(workDir)) {
+            return res.json({ folders: [] });
+        }
+
+        const folders = fs.readdirSync(workDir, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name);
+
+        const data = folders.map((folderName) => {
+            const previewPath = path.join(workDir, folderName, "index.html");
+            return {
+                id: folderName,
+                hasIndex: fs.existsSync(previewPath)
+            };
+        });
+
+        res.json({ folders: data });
+    } catch (err) {
+        console.error("Error reading work folders:", err.message);
+        res.status(500).json({ error: "Failed to read work folders" });
+    }
+});
+
+app.get("/api/work/:id/media", async (req, res) => {
+    try {
+        const workDir = path.join(__dirname, "..", "work", req.params.id);
+        if (!fs.existsSync(workDir) || !fs.lstatSync(workDir).isDirectory()) {
+            return res.status(404).json({ files: [] });
+        }
+
+        const supported = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".mp4", ".webm", ".mov"];
+        const files = fs.readdirSync(workDir, { withFileTypes: true })
+            .filter((entry) => entry.isFile())
+            .filter((entry) => entry.name.toLowerCase() !== "index.html")
+            .map((entry) => ({ name: entry.name, ext: path.extname(entry.name).toLowerCase() }))
+            .filter((entry) => supported.includes(entry.ext))
+            .map((entry) => ({
+                name: entry.name,
+                url: `/work/${encodeURIComponent(req.params.id)}/${encodeURIComponent(entry.name)}`,
+                type: [".mp4", ".webm", ".mov"].includes(entry.ext) ? "video" : "image",
+            }));
+
+        res.json({ files });
+    } catch (err) {
+        console.error("Error reading work media:", err.message);
+        res.status(500).json({ error: "Failed to read work media" });
+    }
+});
 
 app.get("/api/visits", async (req, res) => {
     try {

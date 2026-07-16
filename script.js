@@ -1,5 +1,5 @@
 ﻿const GAME_POSITION = {
-    1160789089: "Animator",
+    3214114884: "Animator",
     6508759464: "UGC Uploader",
     9474062886: "Founder",
     4235402932: "Animator",
@@ -34,13 +34,143 @@ let currentX = 0.5;
 let currentY = 0.5;
 let starContainer = null;
 
+let workModal = null;
+let workFrame = null;
+let workModalPlaceholder = null;
+let workModalTitle = null;
+
 function init() {
     applyThemeByLocalTime();
+    registerWorkModal();
     setupStars();
     setupDarkMode();
     loadData();
     setInterval(updateCountdown, 1000);
     setInterval(loadData, REFRESH_INTERVAL);
+}
+
+function registerWorkModal() {
+    workModal = document.getElementById("workModal");
+    workFrame = document.getElementById("workFrame");
+    workModalPlaceholder = document.getElementById("workModalPlaceholder");
+    workModalTitle = document.getElementById("workModalTitle");
+
+    const closeButton = document.getElementById("closeWorkModal");
+    closeButton?.addEventListener("click", closeWorkModal);
+
+    workModal?.addEventListener("click", (event) => {
+        if (event.target === workModal) closeWorkModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && workModal?.classList.contains("open")) {
+            closeWorkModal();
+        }
+    });
+
+    const output = document.getElementById("output");
+    output?.addEventListener("click", (event) => {
+        if (event.target.closest("a")) return;
+
+        const copyButton = event.target.closest("[data-copy-id]");
+        if (copyButton) {
+            const id = copyButton.dataset.copyId;
+            copyIdToClipboard(id, copyButton);
+            return;
+        }
+
+        const gameCard = event.target.closest("[data-work-id]");
+        if (!gameCard) return;
+
+        const gameId = gameCard.dataset.workId;
+        const rootPlaceId = gameCard.dataset.workRootId;
+        const gameName = gameCard.dataset.workName || "Work Preview";
+        openWorkModal(gameId, rootPlaceId, gameName);
+    });
+}
+
+function copyIdToClipboard(id, button) {
+    if (!id) return;
+    navigator.clipboard.writeText(id).then(() => {
+        const originalText = button.textContent;
+        button.textContent = "Copied!";
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1200);
+    }).catch(() => {
+        const originalText = button.textContent;
+        button.textContent = "Copy failed";
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1200);
+    });
+}
+
+function openWorkModal(gameId, rootPlaceId, gameName) {
+    if (!workModal || !workFrame || !workModalPlaceholder || !workModalTitle) return;
+
+    workModalTitle.textContent = `${gameName} Work Preview`;
+    workFrame.hidden = true;
+    workModalPlaceholder.hidden = true;
+    workModal.classList.add("open");
+
+    const candidates = [
+        `work/${gameId}/index.html`,
+        rootPlaceId ? `work/${rootPlaceId}/index.html` : null
+    ].filter(Boolean);
+
+    const showFrame = () => {
+        workFrame.hidden = false;
+        workModalPlaceholder.hidden = true;
+    };
+
+    const handleError = () => {
+        showWorkUnavailable(gameId, rootPlaceId);
+    };
+
+    workFrame.onload = showFrame;
+    workFrame.onerror = handleError;
+
+    const tryNext = (index) => {
+        if (index >= candidates.length) {
+            handleError();
+            return;
+        }
+
+        const url = candidates[index];
+        if (window.location.protocol === "file:") {
+            workFrame.src = url;
+            return;
+        }
+
+        fetch(url, { method: "HEAD" })
+            .then((response) => {
+                if (response.ok) {
+                    workFrame.src = url;
+                } else {
+                    tryNext(index + 1);
+                }
+            })
+            .catch(() => {
+                tryNext(index + 1);
+            });
+    };
+
+    tryNext(0);
+}
+
+function showWorkUnavailable(gameId) {
+    if (!workFrame || !workModalPlaceholder) return;
+    workFrame.src = "";
+    workFrame.hidden = true;
+    workModalPlaceholder.hidden = false;
+    workModalPlaceholder.innerHTML = `No work preview is available for this game.<br><br>Add an <code>index.html</code> file to <code>./work/${gameId}/</code> and the preview will load here.`;
+}
+
+function closeWorkModal() {
+    if (!workModal || !workFrame) return;
+    workModal.classList.remove("open");
+    workFrame.src = "";
 }
 
 function applyThemeByLocalTime() {
@@ -195,7 +325,7 @@ function renderGames(games) {
     }
 
     output.innerHTML = games.map(g => `
-        <div class="game">
+        <div class="game" data-work-id="${g.id}" data-work-root-id="${g.rootPlaceId}" data-work-name="${g.name}">
             <img src="${g.thumbnail || 'https://tr.rbxcdn.com/4e4f2e6e8c6e8e8e8e8e8e8e8e8e/150/150/Image/Png'}" alt="Thumbnail">
             <div class="info">
                 <h2>
@@ -208,6 +338,10 @@ function renderGames(games) {
                 <p><strong>Visits:</strong> ${formatNumber(g.visits)}</p>
                 <p><strong>Playing:</strong> ${formatNumber(g.playing)}</p>
                 <p><strong>Favorites:</strong> ${formatNumber(g.favoritedCount)}</p>
+                <div class="game-id-row">
+                    <span class="game-id-label"><strong>ID:</strong> ${g.rootPlaceId || g.id}</span>
+                    <button class="copyIdButton" type="button" data-copy-id="${g.rootPlaceId || g.id}">Copy</button>
+                </div>
             </div>
         </div>
     `).join("");

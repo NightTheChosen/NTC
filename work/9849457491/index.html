@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Preview 9849457491</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      color: #e8f0ff;
+      background: #070b18;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(88, 119, 255, 0.16), transparent 30%),
+                  radial-gradient(circle at 80% 10%, rgba(255, 146, 91, 0.18), transparent 18%),
+                  #070b18;
+      color: #e8f0ff;
+    }
+
+    .page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+
+    header {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 2.5vw, 2.75rem);
+      letter-spacing: -0.03em;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 72ch;
+      color: #b0bff0;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) 320px;
+      gap: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(18, 24, 44, 0.96);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 22px 50px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      transition: transform 0.22s ease, border-color 0.22s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(88, 119, 255, 0.35);
+    }
+
+    .media {
+      width: 100%;
+      min-height: 160px;
+      background: #121b2f;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .content {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .content h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.3;
+    }
+
+    .content p {
+      margin: 0;
+      color: #b6c2e6;
+      line-height: 1.65;
+      font-size: 0.96rem;
+      flex: 1;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(88, 119, 255, 0.18);
+      color: #c2d1ff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      border-radius: 24px;
+      background: rgba(12, 18, 36, 0.98);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 22px;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.17);
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+    }
+
+    .category-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .category-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      font-size: 0.96rem;
+      color: #e8f0ff;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #f5f8ff;
+    }
+
+    .count {
+      color: #8fa5cf;
+    }
+
+    .message {
+      margin: 0;
+      color: #c3d1ff;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-wrap {
+        padding: 22px 16px 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <header>
+      <h1>Work I've done</h1>
+    </header>
+
+    <div class="layout">
+      <section class="grid" id="previewGrid"></section>
+
+      <aside class="sidebar">
+        <div class="panel">
+          <h2>Preview Categories</h2>
+          <ul id="categoryList" class="category-list"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    function getWorkId() {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const idx = parts.lastIndexOf("work");
+      if (idx >= 0 && idx + 1 < parts.length) {
+        return parts[idx + 1];
+      }
+      return parts[parts.length - 2] || "";
+    }
+
+    const workId = getWorkId();
+    const apiOrigin = window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin;
+    const apiUrl = `${apiOrigin}/api/work/${encodeURIComponent(workId)}/media`;
+    const previewGrid = document.getElementById("previewGrid");
+
+    function titleize(name) {
+      return name.replace(/[-_]+/g, " ").replace(/\.[^/.]+$/, "").replace(/\b\w/g, (m) => m.toUpperCase());
+    }
+
+    async function loadMedia() {
+      try {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("Media request failed");
+        const data = await res.json();
+        if (!Array.isArray(data.files) || data.files.length === 0) {
+          previewGrid.innerHTML = '<p class="message">No image or gif files were found in this folder. Drop files into the same folder as this page and refresh.</p>';
+          return;
+        }
+
+                previewGrid.innerHTML = data.files.map((file) => {
+          const src = (file.url && (file.url.startsWith('http') || file.url.startsWith('data:'))) ? file.url : (apiOrigin.replace(/\/$/, '') + file.url);
+          if (file.type === 'video') {
+            return `
+              <article class="card">
+                <div class="media"><video src="${src}" controls muted loop playsinline></video></div>
+                <div class="content">
+                  <h2>${titleize(file.name)}</h2>
+                  
+                  <span class="tag">${file.type}</span>
+                </div>
+              </article>
+            `;
+          }
+
+          return `
+            <article class="card">
+              <div class="media"><img src="${src}" alt="${titleize(file.name)}" loading="lazy"></div>
+              <div class="content">
+                <h2>${titleize(file.name)}</h2>
+                
+                <span class="tag">${file.type}</span>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        const images = data.files.filter(f => f.type === 'image').length;
+        const videos = data.files.filter(f => f.type === 'video').length;
+        const cat = document.getElementById('categoryList');
+        if (cat) {
+          cat.innerHTML = '<li><span class="label">Images</span><span class="count">' + images + '</span></li>' + '<li><span class="label">Videos</span><span class="count">' + videos + '</span></li>';
+        }
+
+      } catch (err) {
+        previewGrid.innerHTML = `<p class="message">Unable to load preview media. Make sure the page is served via the backend and that the server is running.</p>`;
+        console.error(err);
+      }
+    }
+
+    loadMedia();
+  </script>
+</body>
+</html>
+
+
