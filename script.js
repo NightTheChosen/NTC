@@ -13,6 +13,7 @@
 };
 
 const API_URL = "https://ntc-fn7y.onrender.com/api/visits";
+const VERSION = "1.0";
 let lastUpdated = null;
 let secondsUntilRefresh = 90;
 const REFRESH_INTERVAL = 90000;
@@ -152,7 +153,7 @@ function renderFooter() {
     const mins = Math.floor(secondsUntilRefresh / 60);
     const secs = secondsUntilRefresh % 60;
 
-    footer.innerHTML = `<strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")}`;
+    footer.innerHTML = `<strong>Last Refreshed:</strong> ${timeStr} | <strong>Next in:</strong> ${mins}:${secs.toString().padStart(2, "0")} | <strong>Version:</strong> ${VERSION}`;
 }
 
 function formatNumber(value) {
