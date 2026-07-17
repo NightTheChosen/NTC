@@ -20,6 +20,7 @@ const REFRESH_INTERVAL = 90000;
 
 let allGames = [];
 let isDarkMode = false;
+const THEME_STORAGE_KEY = "ntc-theme";
 
 const STAR_COUNT = 70;
 const STAR_MIN_SIZE = 1.8;
@@ -40,7 +41,7 @@ let workModalPlaceholder = null;
 let workModalTitle = null;
 
 function init() {
-    applyThemeByLocalTime();
+    initializeTheme();
     registerWorkModal();
     setupStars();
     setupDarkMode();
@@ -174,10 +175,60 @@ function closeWorkModal() {
     workFrame.src = "";
 }
 
-function applyThemeByLocalTime() {
+function getStoredTheme() {
+    try {
+        const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        return storedTheme === "dark" || storedTheme === "light" ? storedTheme : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function persistTheme(theme) {
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {}
+}
+
+function applyTheme(theme) {
+    const normalizedTheme = theme === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", normalizedTheme);
+    document.body.classList.toggle("dark", normalizedTheme === "dark");
+    document.body.classList.toggle("light", normalizedTheme === "light");
+
+    const toggleDark = document.getElementById("toggleDark");
+    if (toggleDark) {
+        toggleDark.textContent = normalizedTheme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+}
+
+function broadcastTheme(theme) {
+    const payload = { type: "ntc-theme", theme };
+    document.querySelectorAll("iframe").forEach((frame) => {
+        try {
+            frame.contentWindow?.postMessage(payload, "*");
+        } catch (error) {}
+    });
+}
+
+function initializeTheme() {
+    const savedTheme = getStoredTheme();
+    if (savedTheme) {
+        applyTheme(savedTheme);
+        return;
+    }
+
     const hour = new Date().getHours();
     const shouldDark = hour >= 19 || hour < 6;
-    document.body.classList.toggle("dark", shouldDark);
+    applyTheme(shouldDark ? "dark" : "light");
+}
+
+function handleThemeMessage(event) {
+    const theme = event.data?.theme;
+    if (theme === "dark" || theme === "light") {
+        persistTheme(theme);
+        applyTheme(theme);
+    }
 }
 
 function setupStars() {
@@ -254,12 +305,23 @@ function setupDarkMode() {
     const toggleDark = document.getElementById("toggleDark");
     if (!toggleDark) return;
 
-    isDarkMode = document.body.classList.contains("dark");
+    window.addEventListener("storage", (event) => {
+        if (event.key === THEME_STORAGE_KEY && (event.newValue === "dark" || event.newValue === "light")) {
+            applyTheme(event.newValue);
+        }
+    });
+
+    window.addEventListener("message", handleThemeMessage);
+
+    isDarkMode = document.documentElement.getAttribute("data-theme") === "dark";
     toggleDark.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
 
     toggleDark.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-        isDarkMode = document.body.classList.contains("dark");
+        const nextTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        persistTheme(nextTheme);
+        applyTheme(nextTheme);
+        broadcastTheme(nextTheme);
+        isDarkMode = nextTheme === "dark";
         toggleDark.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
     });
 }

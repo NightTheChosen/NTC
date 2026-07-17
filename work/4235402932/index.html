@@ -6,10 +6,69 @@
   <title>Work Preview 4235402932</title>
   <style>
     :root {
-      color-scheme: dark;
-      color: #e8f0ff;
-      background: #070b18;
+      color-scheme: light dark;
+      --page-bg: #f5f7ff;
+      --page-text: #172033;
+      --muted-text: #51607a;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(15, 23, 42, 0.08);
+      --card-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
+      --media-bg: #eef3ff;
+      --panel-bg: rgba(255, 255, 255, 0.94);
+      --panel-border: rgba(15, 23, 42, 0.08);
+      --panel-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+      --list-bg: rgba(15, 23, 42, 0.05);
+      --list-text: #172033;
+      --label-text: #111827;
+      --count-text: #64748b;
+      --tag-bg: rgba(88, 119, 255, 0.14);
+      --tag-text: #3451c7;
+      --message-text: #4b5872;
+      color: var(--page-text);
+      background: var(--page-bg);
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      --page-bg: #070b18;
+      --page-text: #e8f0ff;
+      --muted-text: #b0bff0;
+      --card-bg: rgba(18, 24, 44, 0.96);
+      --card-border: rgba(255,255,255,0.08);
+      --card-shadow: 0 22px 50px rgba(0,0,0,0.18);
+      --media-bg: #121b2f;
+      --panel-bg: rgba(12, 18, 36, 0.98);
+      --panel-border: rgba(255,255,255,0.08);
+      --panel-shadow: 0 18px 42px rgba(0,0,0,0.17);
+      --list-bg: rgba(255,255,255,0.04);
+      --list-text: #e8f0ff;
+      --label-text: #f5f8ff;
+      --count-text: #8fa5cf;
+      --tag-bg: rgba(88, 119, 255, 0.18);
+      --tag-text: #c2d1ff;
+      --message-text: #c3d1ff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --page-bg: #070b18;
+        --page-text: #e8f0ff;
+        --muted-text: #b0bff0;
+        --card-bg: rgba(18, 24, 44, 0.96);
+        --card-border: rgba(255,255,255,0.08);
+        --card-shadow: 0 22px 50px rgba(0,0,0,0.18);
+        --media-bg: #121b2f;
+        --panel-bg: rgba(12, 18, 36, 0.98);
+        --panel-border: rgba(255,255,255,0.08);
+        --panel-shadow: 0 18px 42px rgba(0,0,0,0.17);
+        --list-bg: rgba(255,255,255,0.04);
+        --list-text: #e8f0ff;
+        --label-text: #f5f8ff;
+        --count-text: #8fa5cf;
+        --tag-bg: rgba(88, 119, 255, 0.18);
+        --tag-text: #c2d1ff;
+        --message-text: #c3d1ff;
+      }
     }
 
     * {
@@ -21,8 +80,8 @@
       min-height: 100vh;
       background: radial-gradient(circle at top, rgba(88, 119, 255, 0.16), transparent 30%),
                   radial-gradient(circle at 80% 10%, rgba(255, 146, 91, 0.18), transparent 18%),
-                  #070b18;
-      color: #e8f0ff;
+                  var(--page-bg);
+      color: var(--page-text);
     }
 
     .page-wrap {
@@ -46,7 +105,7 @@
     header p {
       margin: 0;
       max-width: 72ch;
-      color: #b0bff0;
+      color: var(--muted-text);
       line-height: 1.7;
       font-size: 1rem;
     }
@@ -66,9 +125,9 @@
     .card {
       border-radius: 24px;
       overflow: hidden;
-      background: rgba(18, 24, 44, 0.96);
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 22px 50px rgba(0,0,0,0.18);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--card-shadow);
       display: flex;
       flex-direction: column;
       min-height: 280px;
@@ -83,7 +142,7 @@
     .media {
       width: 100%;
       min-height: 160px;
-      background: #121b2f;
+      background: var(--media-bg);
       position: relative;
       overflow: hidden;
       display: grid;
@@ -113,7 +172,7 @@
 
     .content p {
       margin: 0;
-      color: #b6c2e6;
+      color: var(--muted-text);
       line-height: 1.65;
       font-size: 0.96rem;
       flex: 1;
@@ -125,8 +184,8 @@
       gap: 6px;
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(88, 119, 255, 0.18);
-      color: #c2d1ff;
+      background: var(--tag-bg);
+      color: var(--tag-text);
       font-size: 0.82rem;
       font-weight: 700;
       width: fit-content;
@@ -139,10 +198,10 @@
 
     .panel {
       border-radius: 24px;
-      background: rgba(12, 18, 36, 0.98);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
       padding: 22px;
-      box-shadow: 0 18px 42px rgba(0,0,0,0.17);
+      box-shadow: var(--panel-shadow);
     }
 
     .panel h2 {
@@ -164,23 +223,23 @@
       align-items: center;
       padding: 12px 14px;
       border-radius: 16px;
-      background: rgba(255,255,255,0.04);
+      background: var(--list-bg);
       font-size: 0.96rem;
-      color: #e8f0ff;
+      color: var(--list-text);
     }
 
     .label {
       font-weight: 700;
-      color: #f5f8ff;
+      color: var(--label-text);
     }
 
     .count {
-      color: #8fa5cf;
+      color: var(--count-text);
     }
 
     .message {
       margin: 0;
-      color: #c3d1ff;
+      color: var(--message-text);
       line-height: 1.7;
     }
 
@@ -216,6 +275,66 @@
   </div>
 
   <script>
+    const root = document.documentElement;
+    const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+    const storageKey = "ntc-theme";
+
+    function getSavedTheme() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        return saved === "dark" || saved === "light" ? saved : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function applyTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      root.style.colorScheme = theme;
+      document.body.classList.toggle("dark", theme === "dark");
+    }
+
+    function setTheme(theme) {
+      try {
+        localStorage.setItem(storageKey, theme);
+      } catch (error) {}
+      applyTheme(theme);
+    }
+
+    function handleStorageChange(event) {
+      if (event.key === storageKey && (event.newValue === "dark" || event.newValue === "light")) {
+        applyTheme(event.newValue);
+      }
+    }
+
+    function handleThemeMessage(event) {
+      const theme = event.data?.theme;
+      if (theme === "dark" || theme === "light") {
+        setTheme(theme);
+      }
+    }
+
+    const savedTheme = getSavedTheme();
+    const initialTheme = savedTheme || (themeMedia.matches ? "dark" : "light");
+    applyTheme(initialTheme);
+
+    if (typeof themeMedia.addEventListener === "function") {
+      themeMedia.addEventListener("change", (event) => {
+        if (!getSavedTheme()) {
+          applyTheme(event.matches ? "dark" : "light");
+        }
+      });
+    } else if (typeof themeMedia.addListener === "function") {
+      themeMedia.addListener((event) => {
+        if (!getSavedTheme()) {
+          applyTheme(event.matches ? "dark" : "light");
+        }
+      });
+    }
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("message", handleThemeMessage);
+
     function getWorkId() {
       const parts = window.location.pathname.split("/").filter(Boolean);
       const idx = parts.lastIndexOf("work");
@@ -226,7 +345,8 @@
     }
 
     const workId = getWorkId();
-    const apiOrigin = window.location.protocol === "file:" ? "http://localhost:3000" : window.location.origin;
+    const isLocal = window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const apiOrigin = isLocal ? "http://localhost:3000" : "https://ntc-fn7y.onrender.com";
     const apiUrl = `${apiOrigin}/api/work/${encodeURIComponent(workId)}/media`;
     const previewGrid = document.getElementById("previewGrid");
 
