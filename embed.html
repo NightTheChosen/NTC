@@ -68,7 +68,7 @@
 
     async function load() {
       try {
-        const res = await fetch('/api/visits');
+        const res = await fetch('https://ntc-fn7y.onrender.com/api/visits');
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         const games = (data.games || []).filter(g => GAME_POSITION[g.id]);
