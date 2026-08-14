@@ -8,21 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.static(path.join(__dirname, "..")));
 
-// Log work folder contents at startup to help diagnose missing media in deployments
-try {
-    const workRootPath = path.join(__dirname, "..", "work");
-    if (fs.existsSync(workRootPath)) {
-        const workEntries = fs.readdirSync(workRootPath, { withFileTypes: true })
-            .filter(e => e.isDirectory())
-            .map(e => e.name);
-        console.log(`Work folders present (${workEntries.length}): ${workEntries.join(", ")}`);
-    } else {
-        console.log(`Work folder not found at ${workRootPath}`);
-    }
-} catch (err) {
-    console.error("Error enumerating work folders:", err && err.message ? err.message : err);
-}
-
 const PORT = process.env.PORT || 3000;
 
 const UNIVERSE_IDS = [
@@ -61,23 +46,6 @@ app.get("/api/work", async (req, res) => {
         res.json({ folders: data });
     } catch (err) {
         console.error("Error reading work folders:", err.message);
-        res.status(500).json({ error: "Failed to read work folders" });
-    }
-});
-
-// Debug endpoint: list work folders (useful to verify deployed filesystem)
-app.get("/api/debug/work-folders", (req, res) => {
-    try {
-        const workDir = path.join(__dirname, "..", "work");
-        if (!fs.existsSync(workDir)) return res.json({ folders: [] });
-
-        const folders = fs.readdirSync(workDir, { withFileTypes: true })
-            .filter((entry) => entry.isDirectory())
-            .map((entry) => entry.name);
-
-        res.json({ folders });
-    } catch (err) {
-        console.error("Debug endpoint error:", err && err.message ? err.message : err);
         res.status(500).json({ error: "Failed to read work folders" });
     }
 });
