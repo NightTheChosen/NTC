@@ -8,6 +8,21 @@ const app = express();
 app.use(cors());
 app.use(express.static(path.join(__dirname, "..")));
 
+// Log work folder contents at startup to help diagnose missing media in deployments
+try {
+    const workRootPath = path.join(__dirname, "..", "work");
+    if (fs.existsSync(workRootPath)) {
+        const workEntries = fs.readdirSync(workRootPath, { withFileTypes: true })
+            .filter(e => e.isDirectory())
+            .map(e => e.name);
+        console.log(`Work folders present (${workEntries.length}): ${workEntries.join(", ")}`);
+    } else {
+        console.log(`Work folder not found at ${workRootPath}`);
+    }
+} catch (err) {
+    console.error("Error enumerating work folders:", err && err.message ? err.message : err);
+}
+
 const PORT = process.env.PORT || 3000;
 
 const UNIVERSE_IDS = [
