@@ -52,9 +52,11 @@ app.get("/api/work", async (req, res) => {
 
 // Serve embeddable HTML dynamically so embeds work even if static files
 app.get('/embed', (req, res) => {
-        const host = req.get('host');
-        res.type('html').send(`<!DOCTYPE html>
-<html lang="en">
+    const host = req.get('host');
+    const theme = req.query.theme || '';
+    const themeAttr = theme === 'dark' ? ' data-theme="dark"' : '';
+    res.type('html').send(`<!DOCTYPE html>
+<html lang="en"${themeAttr}>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">

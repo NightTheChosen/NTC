@@ -6,6 +6,7 @@
   <title>NTC Embed — Games Worked On</title>
   <style>
     :root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}
+    :root[data-theme="dark"]{--bg:#070712;--text:#e6e6e6;--card:#0f1720;--accent:#4da3ff}
     html,body{margin:0;height:100%;font-family:Inter,Segoe UI,system-ui,Arial;background:var(--bg);color:var(--text)}
     .wrap{padding:12px;box-sizing:border-box}
     .header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -44,6 +45,19 @@
       9684251607: "Founder",
       1081987046: "Contributor"
     };
+
+    // Apply theme from ?theme=dark or use prefers-color-scheme
+    (function applyInitialTheme(){
+      try{
+        const params = new URLSearchParams(location.search);
+        const t = params.get('theme');
+        if(t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+        else if(t === 'light') document.documentElement.setAttribute('data-theme','light');
+        else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.setAttribute('data-theme','dark');
+        }
+      }catch(e){}
+    })();
 
     async function load() {
       try {
