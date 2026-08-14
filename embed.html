@@ -13,8 +13,9 @@
     })();
   </script>
   <style>
-    :root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}
-    :root[data-theme="dark"]{--bg:#070712;--text:#e6e6e6;--card:#0f1720;--accent:#4da3ff}
+    /* Default to dark for embeds so deployed static pages render dark */
+    :root{--bg:#070712;--text:#e6e6e6;--card:#0f1720;--accent:#4da3ff}
+    :root[data-theme="light"]{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}
     html,body{margin:0;height:100%;font-family:Inter,Segoe UI,system-ui,Arial;background:var(--bg);color:var(--text)}
     .wrap{padding:12px;box-sizing:border-box}
     .header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
