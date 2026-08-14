@@ -52,8 +52,43 @@ app.get("/api/work", async (req, res) => {
 
 // Serve embeddable HTML dynamically so embeds work even if static files
 app.get('/embed', (req, res) => {
-    res.type('html').send(`<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NTC Embed — Games Worked On</title><style>:root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}html,body{margin:0;height:100%;font-family:Inter,Segoe UI,system-ui,Arial;background:var(--bg);color:var(--text)}.wrap{padding:12px;box-sizing:border-box}.header{display:flex;align-items:center;gap:10px;margin-bottom:12px}.title{font-weight:700;font-size:16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.card{background:var(--card);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center}.thumb{width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}.name{font-size:14px;font-weight:700;text-align:center}.pos{font-size:12px;color:#444}.note{font-size:12px;color:#666;margin-top:10px}.example{margin-top:8px;background:#f3f4f6;padding:8px;border-radius:6px;font-family:monospace;font-size:12px}</style></head><body><div class="wrap"><div class="header"><div class="title">NightTheChosen — Selected Works</div></div><div id="grid" class="grid">Loading…</div><div class="note">Embed this with an iframe. Example:</div><pre class="example">&lt;iframe src="https://${req.get('host')}/embed" width="680" height="360" loading="lazy" style="border:0;border-radius:8px;"&gt;&lt;/iframe&gt;</pre></div><script>const GAME_POSITION={1160789089:"Animator",6508759464:"UGC Uploader",9474062886:"Founder",4235402932:"Animator",1195308961:"Contributor",2722569653:"Animator",6963638414:"Founder",9849457491:"Founder",6421173906:"Founder",9684251607:"Founder",1081987046:"Contributor"};async function load(){try{const res=await fetch('/api/visits');if(!res.ok)throw new Error('API error');const data=await res.json();const games=(data.games||[]).filter(g=>GAME_POSITION[g.id]);const grid=document.getElementById('grid');if(!games.length){grid.innerHTML='<div class="note">No matching games found.</div>';return;}grid.innerHTML=games.map(g=>`<div class="card"><img class="thumb" src="${g.thumbnail||''}" alt="${g.name}"><div class="name">${escapeHtml(g.name)}</div><div class="pos">${GAME_POSITION[g.id]||''}</div></div>`).join('');setTimeout(()=>{const h=document.documentElement.scrollHeight;try{parent.postMessage({type:'embed-height',height:h},'*')}catch(e){}},50);}catch(err){document.getElementById('grid').innerHTML='<div class="note">Failed to load embed.</div>';console.error(err);}}function escapeHtml(s){return (s+'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]);}window.addEventListener('message',(ev)=>{if(ev?.data?.type==='request-height'){const h=document.documentElement.scrollHeight;try{parent.postMessage({type:'embed-height',height:h},'*')}catch(e){}}});load();</script></body></html>`);
+        const host = req.get('host');
+        res.type('html').send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>NTC Embed — Games Worked On</title>
+    <style>:root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}html,body{margin:0;height:100%;font-family:Inter,Segoe UI,system-ui,Arial;background:var(--bg);color:var(--text)}.wrap{padding:12px;box-sizing:border-box}.header{display:flex;align-items:center;gap:10px;margin-bottom:12px}.title{font-weight:700;font-size:16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.card{background:var(--card);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center}.thumb{width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}.name{font-size:14px;font-weight:700;text-align:center}.pos{font-size:12px;color:#444}.note{font-size:12px;color:#666;margin-top:10px}.example{margin-top:8px;background:#f3f4f6;padding:8px;border-radius:6px;font-family:monospace;font-size:12px}</style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header"><div class="title">NightTheChosen — Selected Works</div></div>
+        <div id="grid" class="grid">Loading…</div>
+        <div class="note">Embed this with an iframe. Example:</div>
+        <pre class="example">&lt;iframe src="https://${host}/embed" width="680" height="360" loading="lazy" style="border:0;border-radius:8px;"&gt;&lt;/iframe&gt;</pre>
+    </div>
+    <script>
+        const GAME_POSITION = {1160789089:'Animator',6508759464:'UGC Uploader',9474062886:'Founder',4235402932:'Animator',1195308961:'Contributor',2722569653:'Animator',6963638414:'Founder',9849457491:'Founder',6421173906:'Founder',9684251607:'Founder',1081987046:'Contributor'};
+        async function load(){
+            try{
+                const res = await fetch('/api/visits');
+                if(!res.ok) throw new Error('API error');
+                const data = await res.json();
+                var games = (data.games||[]).filter(function(g){ return GAME_POSITION[g.id]; });
+                var grid = document.getElementById('grid');
+                if(!games.length){ grid.innerHTML = '<div class="note">No matching games found.</div>'; return; }
+                var html = games.map(function(g){ return '<div class="card"><img class="thumb" src="'+(g.thumbnail||'')+'" alt="'+escapeHtml(g.name)+'"><div class="name">'+escapeHtml(g.name)+'</div><div class="pos">'+(GAME_POSITION[g.id]||'')+'</div></div>'; }).join('');
+                grid.innerHTML = html;
+                setTimeout(function(){ var h = document.documentElement.scrollHeight; try{ parent.postMessage({type:'embed-height',height:h}, '*'); }catch(e){} }, 50);
+            }catch(err){ document.getElementById('grid').innerHTML = '<div class="note">Failed to load embed.</div>'; console.error(err); }
+        }
+        function escapeHtml(s){ return (s+'').replace(/[&<>\"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; }); }
+        window.addEventListener('message', function(ev){ if(ev && ev.data && ev.data.type === 'request-height'){ var h = document.documentElement.scrollHeight; try{ parent.postMessage({type:'embed-height',height:h}, '*'); }catch(e){} } });
+        load();
+    </script>
+</body>
+</html>`);
 });
 
 // Redirect old static path to dynamic route (helps existing embeds)
