@@ -65,6 +65,23 @@ app.get("/api/work", async (req, res) => {
     }
 });
 
+// Debug endpoint: list work folders (useful to verify deployed filesystem)
+app.get("/api/debug/work-folders", (req, res) => {
+    try {
+        const workDir = path.join(__dirname, "..", "work");
+        if (!fs.existsSync(workDir)) return res.json({ folders: [] });
+
+        const folders = fs.readdirSync(workDir, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name);
+
+        res.json({ folders });
+    } catch (err) {
+        console.error("Debug endpoint error:", err && err.message ? err.message : err);
+        res.status(500).json({ error: "Failed to read work folders" });
+    }
+});
+
 app.get("/api/work/:id/media", async (req, res) => {
     try {
         const workDir = path.join(__dirname, "..", "work", req.params.id);
