@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>NTC Embed — Games Worked On</title>
+  <script>
+    (function(){
+      try{
+        const params = new URLSearchParams(location.search);
+        if (params.get('theme') === 'dark') document.documentElement.setAttribute('data-theme','dark');
+      }catch(e){}
+    })();
+  </script>
   <style>
     :root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}
     :root[data-theme="dark"]{--bg:#070712;--text:#e6e6e6;--card:#0f1720;--accent:#4da3ff}

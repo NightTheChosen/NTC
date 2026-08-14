@@ -61,6 +61,7 @@ app.get('/embed', (req, res) => {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>NTC Embed — Games Worked On</title>
+    <script>(function(){try{var params=new URLSearchParams((typeof window!=='undefined'&&window.location?window.location.search:('')));if(params.get&&params.get('theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
     <style>:root{--bg:#fff;--text:#111;--card:#f7f8fb;--accent:#0078d7}html,body{margin:0;height:100%;font-family:Inter,Segoe UI,system-ui,Arial;background:var(--bg);color:var(--text)}.wrap{padding:12px;box-sizing:border-box}.header{display:flex;align-items:center;gap:10px;margin-bottom:12px}.title{font-weight:700;font-size:16px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.card{background:var(--card);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center}.thumb{width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,0.06)}.name{font-size:14px;font-weight:700;text-align:center}.pos{font-size:12px;color:#444}.note{font-size:12px;color:#666;margin-top:10px}.example{margin-top:8px;background:#f3f4f6;padding:8px;border-radius:6px;font-family:monospace;font-size:12px}</style>
 </head>
 <body>
