@@ -68,8 +68,6 @@ app.get('/embed', (req, res) => {
     <div class="wrap">
         <div class="header"><div class="title">NightTheChosen — Selected Works</div></div>
         <div id="grid" class="grid">Loading…</div>
-        <div class="note">Embed this with an iframe. Example:</div>
-        <pre class="example">&lt;iframe src="https://${host}/embed" width="680" height="360" loading="lazy" style="border:0;border-radius:8px;"&gt;&lt;/iframe&gt;</pre>
     </div>
     <script>
         const GAME_POSITION = {1160789089:'Animator',6508759464:'UGC Uploader',9474062886:'Founder',4235402932:'Animator',1195308961:'Contributor',2722569653:'Animator',6963638414:'Founder',9849457491:'Founder',6421173906:'Founder',9684251607:'Founder',1081987046:'Contributor'};
