@@ -90,6 +90,51 @@
             pointer-events: none;
         }
 
+        #spellFlash {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+            background: linear-gradient(112deg, transparent 36%, rgba(255, 255, 255, 0.5) 49%, transparent 62%);
+            background-size: 250% 100%;
+        }
+
+        body.spell-cast #spellFlash {
+            animation: spellFlash 1200ms ease-out;
+        }
+
+        body.spell-cast .star {
+            animation: spellStar 700ms ease-out;
+        }
+
+        body.spell-cast .spell-text {
+            color: transparent;
+            background: linear-gradient(110deg, var(--accent) 35%, #fff 50%, var(--accent) 65%);
+            background-size: 220% 100%;
+            background-position: 130% 0;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: spellGameName 1200ms ease-out;
+        }
+
+        @keyframes spellFlash {
+            0% { opacity: 0; background-position: 130% 0; }
+            18% { opacity: 1; }
+            100% { opacity: 0; background-position: -30% 0; }
+        }
+
+        @keyframes spellStar {
+            0%, 100% { filter: brightness(1); }
+            35% { filter: brightness(3); }
+        }
+
+        @keyframes spellGameName {
+            0% { background-position: 130% 0; text-shadow: 0 0 0 transparent; }
+            35% { text-shadow: 0 0 12px var(--accent); }
+            100% { background-position: -30% 0; text-shadow: 0 0 0 transparent; }
+        }
+
         body.dark .star {
             background: rgba(255,255,255,0.95);
             box-shadow: 0 0 8px rgba(255,255,255,0.65);
@@ -382,11 +427,12 @@
 <body>
 
     <div id="stars"></div>
+    <div id="spellFlash"></div>
 
     <button id="toggleDark">Dark Mode</button>
 
     <div class="container">
-        <h1>NightTheChosen's Portfolio</h1>
+        <h1><span class="spell-text">NightTheChosen's Portfolio</span></h1>
         <div id="totals">Loading totals...</div>
             <div id="filterRow">
                 <label for="groupFilter">Creator</label>

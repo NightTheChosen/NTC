@@ -45,9 +45,65 @@ function init() {
     registerWorkModal();
     setupStars();
     setupDarkMode();
+    setupSpellSystem();
     loadData();
     setInterval(updateCountdown, 1000);
     setInterval(loadData, REFRESH_INTERVAL);
+}
+
+let spellBuffer = "";
+let spellResetTimer = null;
+let spellAnimationTimer = null;
+let spellSfx = null;
+
+function setupSpellSystem() {
+    spellSfx = new Audio("SFX/Shine.mp3");
+    spellSfx.preload = "auto";
+    spellSfx.volume = 0.15;
+
+    document.addEventListener("keydown", (event) => {
+        if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+        if (event.target.matches("input, textarea, select, [contenteditable=\"true\"]")) return;
+
+        spellBuffer = (spellBuffer + event.key.toLowerCase()).slice(-3);
+        clearTimeout(spellResetTimer);
+        spellResetTimer = setTimeout(() => {
+            spellBuffer = "";
+        }, 1200);
+
+        if (spellBuffer === "eer") {
+            castSpell();
+            spellBuffer = "";
+        }
+    });
+}
+
+function castSpell() {
+    if (spellSfx) {
+        spellSfx.currentTime = 0;
+        spellSfx.play().catch(() => {});
+    }
+
+    shuffleStars();
+    document.body.classList.remove("spell-cast");
+    void document.body.offsetWidth;
+    document.body.classList.add("spell-cast");
+    clearTimeout(spellAnimationTimer);
+    spellAnimationTimer = setTimeout(() => {
+        document.body.classList.remove("spell-cast");
+    }, 1200);
+}
+
+function shuffleStars() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    starElements.forEach((star) => {
+        star.baseX = Math.random() * Math.max(0, width - star.size);
+        star.baseY = Math.random() * Math.max(0, height - star.size);
+        star.el.style.left = `${star.baseX}px`;
+        star.el.style.top = `${star.baseY}px`;
+    });
 }
 
 function registerWorkModal() {
@@ -353,6 +409,32 @@ function formatNumber(value) {
     return value.toLocaleString();
 }
 
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+function renderSpellText(value) {
+    const text = String(value);
+    const emojiPattern = /(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})(?:\uFE0F|\p{Emoji_Modifier})?)*/gu;
+    let result = "";
+    let lastIndex = 0;
+
+    for (const match of text.matchAll(emojiPattern)) {
+        const index = match.index;
+        result += `<span class="spell-text">${escapeHtml(text.slice(lastIndex, index))}</span>`;
+        result += escapeHtml(match[0]);
+        lastIndex = index + match[0].length;
+    }
+
+    return result + `<span class="spell-text">${escapeHtml(text.slice(lastIndex))}</span>`;
+}
+
 function getFilteredGames() {
     const filter = document.getElementById("groupFilter");
     const selected = filter?.value || "";
@@ -393,7 +475,7 @@ function renderGames(games) {
             <div class="info">
                 <h2>
                     <a href="https://www.roblox.com/games/${g.rootPlaceId}" target="_blank">
-                        ${g.name}
+                        ${renderSpellText(g.name)}
                     </a>
                 </h2>
                 <p><strong>Creator:</strong> ${g.creator?.name || "Unknown"}</p>
