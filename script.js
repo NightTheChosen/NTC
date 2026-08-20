@@ -55,6 +55,8 @@ let spellBuffer = "";
 let spellResetTimer = null;
 let spellAnimationTimer = null;
 let spellSfx = null;
+let spellAvailableAt = 0;
+const SPELL_COOLDOWN_MS = 10000;
 
 function setupSpellSystem() {
     spellSfx = new Audio("SFX/Shine.mp3");
@@ -71,7 +73,7 @@ function setupSpellSystem() {
             spellBuffer = "";
         }, 1200);
 
-        if (spellBuffer === "eer") {
+        if (spellBuffer === "eer" && Date.now() >= spellAvailableAt) {
             castSpell();
             spellBuffer = "";
         }
@@ -79,6 +81,8 @@ function setupSpellSystem() {
 }
 
 function castSpell() {
+    spellAvailableAt = Date.now() + SPELL_COOLDOWN_MS;
+
     if (spellSfx) {
         spellSfx.currentTime = 0;
         spellSfx.play().catch(() => {});
